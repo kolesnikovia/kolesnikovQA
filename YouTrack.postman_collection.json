@@ -1,0 +1,321 @@
+{
+	"info": {
+		"_postman_id": "ddb82584-9bfd-4e07-bffe-e2e415ba4710",
+		"name": "YouTrack",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "22814881"
+	},
+	"item": [
+		{
+			"name": "available_projects",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var jsonData = pm.response.json()\r",
+							"\r",
+							"pm.collectionVariables.set(\"project_id\", jsonData[4].id);\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://89.223.126.182:8080/api/admin/projects?fields=id,name,shortName'",
+					"protocol": "http",
+					"host": [
+						"89",
+						"223",
+						"126",
+						"182"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"admin",
+						"projects"
+					],
+					"query": [
+						{
+							"key": "fields",
+							"value": "id,name,shortName'"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create_Issure",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var jsonData = pm.response.json()\r",
+							"\r",
+							"pm.collectionVariables.set(\"Issue_id\", jsonData.id);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var rnd = Math.random();\r",
+							"pm.collectionVariables.set(\"Summary\", \"AT_Mikeladze--\" + rnd);\r",
+							"pm.collectionVariables.set(\"Description\", \"avv--\" + rnd);\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"project\": {\r\n        \"id\": \"{{project_id}}\"\r\n    },\r\n    \"summary\": \"{{Summary}}\",\r\n    \"description\":\"{{Description}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://89.223.126.182:8080/api/issues",
+					"protocol": "http",
+					"host": [
+						"89",
+						"223",
+						"126",
+						"182"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"issues"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Issue",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Body matches string\", function () {\r",
+							"pm.expect(pm.response.text()).to.include(pm.collectionVariables.get(\"Summary\"));\r",
+							"pm.expect(pm.response.text()).to.include(pm.collectionVariables.get(\"Description\"));\r",
+							"\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Summary and description tests\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"pm.expect(jsonData.summary).to.eql(pm.collectionVariables.get(\"Summary\"));\r",
+							"pm.expect(jsonData.description).to.eql(pm.collectionVariables.get(\"Description\"));\r",
+							"\r",
+							"});\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://89.223.126.182:8080/api/issues/{{Issue_id}}?fields=$type,id,summary,description, customFields($type,id,projectCustomField($type,id,field($type,id,name)),value($type,avatarUrl,buildLink,color(id),fullName,id,isResolved,localizedName,login,minutes,name,presentation,text))",
+					"protocol": "http",
+					"host": [
+						"89",
+						"223",
+						"126",
+						"182"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"issues",
+						"{{Issue_id}}"
+					],
+					"query": [
+						{
+							"key": "fields",
+							"value": "$type,id,summary,description, customFields($type,id,projectCustomField($type,id,field($type,id,name)),value($type,avatarUrl,buildLink,color(id),fullName,id,isResolved,localizedName,login,minutes,name,presentation,text))"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post_Update",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"customFields\": [\r\n        {\r\n            \"name\": \"Assignee\",\r\n            \"$type\": \"SingleUserIssueCustomField\",\r\n            \"value\": {\r\n                \"login\": \"bastidigger@yandex.ru\"\r\n            }\r\n        },\r\n        {\r\n            \"name\": \"Priority\",\r\n            \"$type\": \"SingleEnumIssueCustomField\",\r\n            \"value\": {\r\n                \"name\": \"Major\"\r\n            }\r\n        }\r\n\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://89.223.126.182:8080/api/issues/{{Issue_id}}?fields=customFields(id,name,value(avatarUrl,buildLink,color(id),fullName,id,isResolved,localizedName,login,minutes,name,presentation,text))",
+					"protocol": "http",
+					"host": [
+						"89",
+						"223",
+						"126",
+						"182"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"issues",
+						"{{Issue_id}}"
+					],
+					"query": [
+						{
+							"key": "fields",
+							"value": "customFields(id,name,value(avatarUrl,buildLink,color(id),fullName,id,isResolved,localizedName,login,minutes,name,presentation,text))"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Custom_fields",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Login_test\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"pm.expect(jsonData.customFields[3].value.login).to.eql(\"bastidigger@yandex.ru\");\r",
+							"\r",
+							"\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://89.223.126.182:8080/api/issues/{{Issue_id}}?fields=customFields(id,name,value(avatarUrl,buildLink,color(id),fullName,id,isResolved,localizedName,login,minutes,name,presentation,text))",
+					"protocol": "http",
+					"host": [
+						"89",
+						"223",
+						"126",
+						"182"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"issues",
+						"{{Issue_id}}"
+					],
+					"query": [
+						{
+							"key": "fields",
+							"value": "customFields(id,name,value(avatarUrl,buildLink,color(id),fullName,id,isResolved,localizedName,login,minutes,name,presentation,text))"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "password",
+				"value": "123456",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "bastidigger@yandex.ru",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "Summary",
+			"value": ""
+		},
+		{
+			"key": "Description",
+			"value": ""
+		},
+		{
+			"key": "project_id",
+			"value": ""
+		},
+		{
+			"key": "Issue_id",
+			"value": ""
+		}
+	]
+}
